@@ -58,3 +58,5 @@ This project is licensed under the MIT License. You are free to use, modify, and
 📫 Contact
 
 For bug reports, suggestions, or collaboration, please open an issue on GitHub or contact the project maintainer.
+
+This repository supports the results published in [Design and Implementation of a Magnetic Barkhausen Noise Detection System Based on QT], 2025.
