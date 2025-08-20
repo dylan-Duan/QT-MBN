@@ -1,0 +1,11 @@
+debug/main.o
+debug/dbloader.o
+debug/mainwindow.o
+debug/dbloader.o
+debug/signalprocessor.o
+debug/signalprocessor.o
+debug/main.o
+debug/mainwindow.o
+debug/dbloader.o
+debug/signalprocessor.o
+debug/moc_mainwindow.o

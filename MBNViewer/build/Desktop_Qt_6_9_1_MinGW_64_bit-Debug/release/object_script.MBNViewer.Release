@@ -1,0 +1,11 @@
+release/main.o
+release/dbloader.o
+release/mainwindow.o
+release/dbloader.o
+release/signalprocessor.o
+release/signalprocessor.o
+release/main.o
+release/mainwindow.o
+release/dbloader.o
+release/signalprocessor.o
+release/moc_mainwindow.o
