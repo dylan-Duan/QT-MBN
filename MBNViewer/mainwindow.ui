@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>选择目录</string>
+     <string>Browse</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btnLoad">
@@ -37,7 +37,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>加载并处理</string>
+     <string>Load</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btnPlotTime">
@@ -50,7 +50,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>时域图</string>
+     <string>Time Domain</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btnPlotFreq">
@@ -63,7 +63,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>频谱图</string>
+     <string>Frequency Domain</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="editDir">
@@ -106,7 +106,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>包络图</string>
+     <string>Envelope</string>
     </property>
    </widget>
   </widget>

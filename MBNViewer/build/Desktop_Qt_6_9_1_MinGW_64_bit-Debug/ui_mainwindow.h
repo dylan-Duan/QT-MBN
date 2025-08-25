@@ -85,11 +85,11 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "MainWindow", nullptr));
-        btnBrowse->setText(QCoreApplication::translate("MainWindow", "\351\200\211\346\213\251\347\233\256\345\275\225", nullptr));
-        btnLoad->setText(QCoreApplication::translate("MainWindow", "\345\212\240\350\275\275\345\271\266\345\244\204\347\220\206", nullptr));
-        btnPlotTime->setText(QCoreApplication::translate("MainWindow", "\346\227\266\345\237\237\345\233\276", nullptr));
-        btnPlotFreq->setText(QCoreApplication::translate("MainWindow", "\351\242\221\350\260\261\345\233\276", nullptr));
-        btnPlotEnv->setText(QCoreApplication::translate("MainWindow", "\345\214\205\347\273\234\345\233\276", nullptr));
+        btnBrowse->setText(QCoreApplication::translate("MainWindow", "Browse", nullptr));
+        btnLoad->setText(QCoreApplication::translate("MainWindow", "Load", nullptr));
+        btnPlotTime->setText(QCoreApplication::translate("MainWindow", "Time Domain", nullptr));
+        btnPlotFreq->setText(QCoreApplication::translate("MainWindow", "Frequency Domain", nullptr));
+        btnPlotEnv->setText(QCoreApplication::translate("MainWindow", "Envelope", nullptr));
     } // retranslateUi
 
 };

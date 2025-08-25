@@ -11,7 +11,7 @@ DBTableData loadAllDbFiles(const QString &dirPath)
 {
     DBTableData dataList;
 
-    // 只做一件事：在 dirPath 目录下按 *.db 过滤，非递归
+    // Do only one thing: filter *.db files in dirPath directory, non-recursive
     QDir dir(dirPath);
     const QStringList filters{ "*.db" };
     const QFileInfoList fileList = dir.entryInfoList(
@@ -19,7 +19,7 @@ DBTableData loadAllDbFiles(const QString &dirPath)
 
     for (const QFileInfo &fi : fileList) {
         const QString dbFile = fi.absoluteFilePath();
-        const QString connName = dbFile; // 连接名用绝对路径，确保唯一
+        const QString connName = dbFile; // Use absolute path as connection name to ensure uniqueness
 
         {
             QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", connName);
@@ -48,11 +48,11 @@ DBTableData loadAllDbFiles(const QString &dirPath)
                         row << query.value(i);
                     tableData << row;
                 }
-            } // QSqlQuery 析构
+            } // QSqlQuery destructor
 
             dataList << tableData;
             db.close();
-        } // QSqlDatabase 析构
+        } // QSqlDatabase destructor
 
         QSqlDatabase::removeDatabase(connName);
     }

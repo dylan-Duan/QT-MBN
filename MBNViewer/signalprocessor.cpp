@@ -4,24 +4,24 @@
 #include <QDebug>
 
 
-// —————————————— 已有两函数 ——————————————
+// —————————————— Existing two functions ——————————————
 
 MBNMatrix processAllMBN(const QList<TableData> &allData)
 {
-    // 预分配结果容器
+    // Pre-allocate result container
     MBNMatrix MBN_all;
     MBN_all.reserve(allData.size());
 
-    const int rows = 100000;  // 每列行数
-    const int cols = 10;      // 一共 10 列数据（传感器通道）
+    const int rows = 100000;  // number of rows per column
+    const int cols = 5;       // total of 10 columns of data (sensor channels)
 
     for (const TableData &table : allData)
     {
-        // 提取原始 MBN 数据并预分配
+        // Extract raw MBN data and pre-allocate
         DoubleVector MBN_raw;
         MBN_raw.reserve(rows * cols);
 
-        // 提取第 2 列（索引 1），并忽略少于 4 列的无效行
+        // Extract the 2nd column (index 1), skip invalid rows with less than 4 columns
         for (const RowData &row : table)
         {
             if (row.size() < 4)
@@ -29,13 +29,13 @@ MBNMatrix processAllMBN(const QList<TableData> &allData)
             MBN_raw << row[1].toDouble();
         }
 
-        // 如果数量不对则警告并跳过
+        // If size mismatch, warn and skip
         if (MBN_raw.size() != rows * cols) {
             qWarning() << "MBN size mismatch, skipping table";
             continue;
         }
 
-        // 按行（100 000 行 × 10 列）求平均
+        // Row-wise average (100,000 rows × 10 columns)
         DoubleVector MBN(rows);
         for (int i = 0; i < rows; ++i) {
             double sum = 0.0;
@@ -45,7 +45,7 @@ MBNMatrix processAllMBN(const QList<TableData> &allData)
             MBN[i] = sum / cols;
         }
 
-        // 收集结果
+        // Collect results
         MBN_all << MBN;
     }
 
@@ -79,8 +79,8 @@ QVector<double> butterworthFilter(const QVector<double> &x, double cutoffHz, dou
 
 MBNMatrix extractEnvelopes(const MBNMatrix &mbnMatrix)
 {
-    const double Fs = 10000.0;      // 包络采样频率（1 kHz）
-    const double cutoffHz = 20.0;   // 低通截止频率 2 Hz
+    const double Fs = 10000.0;      // envelope sampling frequency (1 kHz)
+    const double cutoffHz = 20.0;   // low-pass cutoff frequency 2 Hz
 
     MBNMatrix filterMBN;
     filterMBN.reserve(mbnMatrix.size());
@@ -89,25 +89,25 @@ MBNMatrix extractEnvelopes(const MBNMatrix &mbnMatrix)
         const int N = x1.size();
         QVector<double> x2(N), env(N);
 
-        // Step 1：平方检波（带 2 倍系数）
+        // Step 1: square detection (with factor 2)
         for (int j = 0; j < N; ++j)
             x2[j] = 2.0 * x1[j] * x1[j];
 
-        // Step 2：2 阶 Butterworth 低通（双线性变换）
+        // Step 2: 2nd-order Butterworth low-pass (bilinear transform)
         QVector<double> y = butterworthFilter(x2, cutoffHz, Fs);
 
-        // Step 3：开方还原（再乘 2）
+        // Step 3: square root recovery (multiply by 2 again)
         for (int j = 0; j < N; ++j)
             env[j] = 2.0 * std::sqrt(std::max(0.0, y[j]));
 
-        filterMBN << env;  // 追加到输出矩阵
+        filterMBN << env;  // append to output matrix
     }
 
     return filterMBN;
 }
 
 
-// —————————————— 新增峰值与振铃函数 ——————————————
+// —————————————— New peak and ringing functions ——————————————
 
 static double calculateProminence(const QList<double> &sig, int idx) {
     double peak = sig[idx];
@@ -149,7 +149,7 @@ QVector<PeakInfo> findPeaksWithWidth(const QVector<double> &signal, double fs, d
         }
     }
 
-    // 检查最后一个点是否为峰
+    // Check if the last point is a peak
     if (signal.size() >= 2) {
         int i = N - 1;
         if (signal[i] > signal[i - 1]) {
@@ -174,7 +174,7 @@ int countRingingByPeaks(const QVector<double> &x, double thresholdRatio = 0.01)
     int N = x.size();
     if (N < 2) return 0;
 
-    // 计算幅值门限 epsVal = thresholdRatio * max(|x|)
+    // Compute amplitude threshold epsVal = thresholdRatio * max(|x|)
     double maxAbs = 0.0;
     for (double v : x) {
         maxAbs = std::max(maxAbs, std::abs(v));
@@ -183,11 +183,11 @@ int countRingingByPeaks(const QVector<double> &x, double thresholdRatio = 0.01)
 
     int posCount = 0, negCount = 0;
 
-    // 起点 i=0
+    // Start point i=0
     if (x[0] > x[1] && x[0] > epsVal) ++posCount;
     if (-x[0] > -x[1] && -x[0] > epsVal) ++negCount;
 
-    // 主循环 i=1..N-2：正峰与负峰；对平台做消重
+    // Main loop i=1..N-2: positive and negative peaks; deduplicate flat regions
     for (int i = 1; i < N - 1; ++i) {
         if (x[i] > x[i - 1] && x[i] > x[i + 1] && x[i] > epsVal) {
             ++posCount;
@@ -203,11 +203,11 @@ int countRingingByPeaks(const QVector<double> &x, double thresholdRatio = 0.01)
         }
     }
 
-    // 终点 i=N-1
+    // End point i=N-1
     if (x[N - 1] > x[N - 2] && x[N - 1] > epsVal) ++posCount;
     if (-x[N - 1] > -x[N - 2] && -x[N - 1] > epsVal) ++negCount;
 
-    // 1 次振铃 ≈ 一个正峰 + 一个负峰，向上取整
+    // One ringing ≈ one positive peak + one negative peak, round up
     int totalPeaks = posCount + negCount;
     return static_cast<int>(std::ceil(totalPeaks / 2.0));
 }
@@ -217,20 +217,20 @@ void analyzeAllPeaks(const MBNMatrix &envelopes,
     for (int idx = 0; idx < envelopes.size(); ++idx) {
         const DoubleVector &env = envelopes[idx];
 
-        // 1) 峰值检测（幅值、FWHM(秒)、幅宽比）
+        // 1) Peak detection (amplitude, FWHM (s), amplitude-to-width ratio)
         QVector<PeakInfo> peaks = findPeaksWithWidth(env, fs, minProminenceRatio);
 
-        // 2) 振铃次数
+        // 2) Ringing count
         int ringing = countRingingByPeaks(env, ringingThresholdRatio);
 
-        // 3) 打印
+        // 3) Print
         qDebug().noquote() << QString("=== Signal %1 Peak Features ===").arg(idx + 1);
         qDebug().noquote() << QString("Ringing Count = %1").arg(ringing);
 
         for (int j = 0; j < peaks.size(); ++j) {
             const PeakInfo &p = peaks[j];
             qDebug().noquote()
-                << QString("峰 %1: 幅值=%2, FWHM=%3 s, 峰宽比=%4")
+                << QString("Peak %1: Amplitude=%2, FWHM=%3 s, Ratio=%4")
                        .arg(j + 1)
                        .arg(p.amplitude, 0, 'f', 6)
                        .arg(p.fwhm,      0, 'f', 6)
